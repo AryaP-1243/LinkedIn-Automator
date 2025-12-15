@@ -1,0 +1,111 @@
+linkedin:
+  email: "${LINKEDIN_EMAIL}"
+  password: "${LINKEDIN_PASSWORD}"
+
+browser:
+  headless: true
+  user_data_dir: "./data/browser"
+  viewport_width: 1920
+  viewport_height: 1080
+  user_agents:
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  disable_webrtc: true
+  disable_webgl: false
+
+stealth:
+  mouse_movement:
+    enabled: true
+    min_speed: 0.5
+    max_speed: 2.0
+    overshoot_enabled: true
+    micro_movements: true
+    bezier_complexity: 3
+  
+  timing:
+    min_action_delay: 500ms
+    max_action_delay: 2000ms
+    min_think_time: 1000ms
+    max_think_time: 5000ms
+    page_load_wait: 3000ms
+    human_variation: 0.3
+  
+  scrolling:
+    enabled: true
+    min_scroll_speed: 50
+    max_scroll_speed: 200
+    scroll_back_chance: 0.1
+    pause_chance: 0.15
+    smooth_scrolling: true
+  
+  typing:
+    enabled: true
+    min_key_delay: 50ms
+    max_key_delay: 150ms
+    typo_chance: 0.02
+    correction_delay: 300ms
+    think_pause_chance: 0.05
+  
+  fingerprinting:
+    rotate_user_agent: true
+    randomize_viewport: true
+    disable_automation: true
+    spoof_timezone: true
+    spoof_language: false
+
+rate_limits:
+  daily_connection_limit: 25
+  hourly_connection_limit: 5
+  daily_message_limit: 50
+  hourly_message_limit: 10
+  daily_search_limit: 100
+  cooldown_period: 30m
+  break_interval: 45m
+  break_duration: 10m
+
+messaging:
+  templates:
+    - name: "connection_request"
+      body: "Hi {{.FirstName}}, I noticed we share an interest in {{.Industry}}. I'd love to connect and learn more about your work at {{.Company}}."
+      type: "connection"
+    - name: "follow_up"
+      subject: "Great to connect!"
+      body: "Hi {{.FirstName}}, thanks for connecting! I'm always interested in {{.Industry}} insights. Would love to hear about your experience at {{.Company}}."
+      type: "message"
+  follow_up_delay: 24h
+  max_message_length: 300
+
+search:
+  keywords:
+    - "software engineer"
+    - "product manager"
+  job_titles:
+    - "Engineering Manager"
+    - "CTO"
+  companies: []
+  locations: []
+  industries: []
+  max_results: 100
+  pages_per_search: 5
+
+storage:
+  data_dir: "./data"
+  connections_file: "connections.json"
+  messages_file: "messages.json"
+  session_file: "session.json"
+  profiles_file: "profiles.json"
+
+logging:
+  level: "info"
+  format: "text"
+  output_file: "./data/logs/automation.log"
+  max_size: 10
+  max_backups: 5
+
+schedule:
+  enabled: true
+  start_hour: 9
+  end_hour: 18
+  timezone: "America/New_York"
+  work_days: [1, 2, 3, 4, 5]
+  random_breaks: true

@@ -1,0 +1,46 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+linkedin-automation
+
+# Test binary
+*.test
+
+# Output of go coverage
+*.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Data and logs
+data/
+*.log
+
+# Browser data
+browser/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Session and cookies (sensitive)
+session.json
+cookies.json
+
+# Build artifacts
+bin/
+dist/

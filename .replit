@@ -1,2 +1,30 @@
+modules = ["go-1.24"]
 [agent]
 expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["chromium"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "LinkedIn Automation"
+
+[[workflows.workflow]]
+name = "LinkedIn Automation"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "go build -o linkedin-automation ./cmd/linkedin-automation && echo \"Build successful! Run with: ./linkedin-automation -help\""
+
+[workflows.workflow.metadata]
+outputType = "console"
