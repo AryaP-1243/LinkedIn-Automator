@@ -189,6 +189,7 @@ func (t *TypingController) generateTypo(char rune) rune {
 }
 
 func (t *TypingController) ExecuteTyping(ctx context.Context, typeFn func(char rune) error, backspaceFn func() error, text string) error {
+	typingStart := time.Now()
 	keystrokes := t.GenerateKeystrokes(text)
 
 	for _, ks := range keystrokes {
@@ -206,13 +207,22 @@ func (t *TypingController) ExecuteTyping(ctx context.Context, typeFn func(char r
 			if err := backspaceFn(); err != nil {
 				return err
 			}
+			if t.config.Enabled {
+				t.log.Debug("Backspace pressed")
+			}
 		} else {
 			if err := typeFn(ks.Char); err != nil {
 				return err
 			}
+			if t.config.Enabled {
+				t.log.Debug("Typed char: %c", ks.Char)
+			}
 		}
 	}
 
+	if t.config.Enabled {
+		t.log.Info("Typing completed in %v", time.Since(typingStart))
+	}
 	return nil
 }
 

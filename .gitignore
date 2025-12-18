@@ -30,8 +30,8 @@ go.work.sum
 data/
 *.log
 
-# Browser data
-browser/
+# Browser data (commented out to allow code edits)
+# browser/
 
 # OS
 .DS_Store

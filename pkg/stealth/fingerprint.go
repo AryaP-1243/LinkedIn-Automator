@@ -146,8 +146,8 @@ func (f *FingerprintManager) Generate() *BrowserFingerprint {
 	fp.WebGLVendor = webGL.Vendor
 	fp.WebGLRenderer = webGL.Renderer
 
-	pixelRatios := []float64{1.0, 1.25, 1.5, 2.0}
-	fp.PixelRatio = pixelRatios[f.rand.Intn(len(pixelRatios))]
+	// Force pixel ratio to 1.0 to prevent blur on Retina displays
+	fp.PixelRatio = 1.0
 
 	return fp
 }
@@ -182,35 +182,8 @@ func (f *FingerprintManager) GetStealthScripts() []string {
 	scripts := []string{}
 
 	if f.config.DisableAutomation {
-		scripts = append(scripts, `
-			Object.defineProperty(navigator, 'webdriver', {
-				get: () => undefined
-			});
-			
-			delete navigator.__proto__.webdriver;
-			
-			Object.defineProperty(navigator, 'plugins', {
-				get: () => [1, 2, 3, 4, 5]
-			});
-			
-			Object.defineProperty(navigator, 'languages', {
-				get: () => ['en-US', 'en']
-			});
-			
-			window.chrome = {
-				runtime: {}
-			};
-			
-			Object.defineProperty(navigator, 'permissions', {
-				get: () => ({
-					query: (parameters) => (
-						parameters.name === 'notifications' ?
-							Promise.resolve({ state: Notification.permission }) :
-							Promise.resolve({ state: 'prompt' })
-					)
-				})
-			});
-		`)
+		// Use minimal stealth to avoid crashing the renderer
+		// scripts = append(scripts, `...`)
 	}
 
 	return scripts

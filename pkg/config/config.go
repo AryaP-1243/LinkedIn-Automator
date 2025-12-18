@@ -11,15 +11,15 @@ import (
 )
 
 type Config struct {
-	LinkedIn    LinkedInConfig    `yaml:"linkedin" json:"linkedin"`
-	Browser     BrowserConfig     `yaml:"browser" json:"browser"`
-	Stealth     StealthConfig     `yaml:"stealth" json:"stealth"`
-	RateLimits  RateLimitConfig   `yaml:"rate_limits" json:"rate_limits"`
-	Messaging   MessagingConfig   `yaml:"messaging" json:"messaging"`
-	Search      SearchConfig      `yaml:"search" json:"search"`
-	Storage     StorageConfig     `yaml:"storage" json:"storage"`
-	Logging     LoggingConfig     `yaml:"logging" json:"logging"`
-	Schedule    ScheduleConfig    `yaml:"schedule" json:"schedule"`
+	LinkedIn   LinkedInConfig  `yaml:"linkedin" json:"linkedin"`
+	Browser    BrowserConfig   `yaml:"browser" json:"browser"`
+	Stealth    StealthConfig   `yaml:"stealth" json:"stealth"`
+	RateLimits RateLimitConfig `yaml:"rate_limits" json:"rate_limits"`
+	Messaging  MessagingConfig `yaml:"messaging" json:"messaging"`
+	Search     SearchConfig    `yaml:"search" json:"search"`
+	Storage    StorageConfig   `yaml:"storage" json:"storage"`
+	Logging    LoggingConfig   `yaml:"logging" json:"logging"`
+	Schedule   ScheduleConfig  `yaml:"schedule" json:"schedule"`
 }
 
 type LinkedInConfig struct {
@@ -28,65 +28,67 @@ type LinkedInConfig struct {
 }
 
 type BrowserConfig struct {
-	Headless        bool     `yaml:"headless" json:"headless"`
-	UserDataDir     string   `yaml:"user_data_dir" json:"user_data_dir"`
-	ViewportWidth   int      `yaml:"viewport_width" json:"viewport_width"`
-	ViewportHeight  int      `yaml:"viewport_height" json:"viewport_height"`
-	UserAgents      []string `yaml:"user_agents" json:"user_agents"`
-	DisableWebRTC   bool     `yaml:"disable_webrtc" json:"disable_webrtc"`
-	DisableWebGL    bool     `yaml:"disable_webgl" json:"disable_webgl"`
+	Headless       bool     `yaml:"headless" json:"headless"`
+	Fullscreen     bool     `yaml:"fullscreen" json:"fullscreen"`
+	ZoomLevel      float64  `yaml:"zoom_level" json:"zoom_level"`
+	UserDataDir    string   `yaml:"user_data_dir" json:"user_data_dir"`
+	ViewportWidth  int      `yaml:"viewport_width" json:"viewport_width"`
+	ViewportHeight int      `yaml:"viewport_height" json:"viewport_height"`
+	UserAgents     []string `yaml:"user_agents" json:"user_agents"`
+	DisableWebRTC  bool     `yaml:"disable_webrtc" json:"disable_webrtc"`
+	DisableWebGL   bool     `yaml:"disable_webgl" json:"disable_webgl"`
 }
 
 type StealthConfig struct {
-	MouseMovement    MouseMovementConfig    `yaml:"mouse_movement" json:"mouse_movement"`
-	Timing           TimingConfig           `yaml:"timing" json:"timing"`
-	Scrolling        ScrollingConfig        `yaml:"scrolling" json:"scrolling"`
-	Typing           TypingConfig           `yaml:"typing" json:"typing"`
-	Fingerprinting   FingerprintConfig      `yaml:"fingerprinting" json:"fingerprinting"`
+	MouseMovement  MouseMovementConfig `yaml:"mouse_movement" json:"mouse_movement"`
+	Timing         TimingConfig        `yaml:"timing" json:"timing"`
+	Scrolling      ScrollingConfig     `yaml:"scrolling" json:"scrolling"`
+	Typing         TypingConfig        `yaml:"typing" json:"typing"`
+	Fingerprinting FingerprintConfig   `yaml:"fingerprinting" json:"fingerprinting"`
 }
 
 type MouseMovementConfig struct {
-	Enabled           bool    `yaml:"enabled" json:"enabled"`
-	MinSpeed          float64 `yaml:"min_speed" json:"min_speed"`
-	MaxSpeed          float64 `yaml:"max_speed" json:"max_speed"`
-	OvershootEnabled  bool    `yaml:"overshoot_enabled" json:"overshoot_enabled"`
-	MicroMovements    bool    `yaml:"micro_movements" json:"micro_movements"`
-	BezierComplexity  int     `yaml:"bezier_complexity" json:"bezier_complexity"`
+	Enabled          bool    `yaml:"enabled" json:"enabled"`
+	MinSpeed         float64 `yaml:"min_speed" json:"min_speed"`
+	MaxSpeed         float64 `yaml:"max_speed" json:"max_speed"`
+	OvershootEnabled bool    `yaml:"overshoot_enabled" json:"overshoot_enabled"`
+	MicroMovements   bool    `yaml:"micro_movements" json:"micro_movements"`
+	BezierComplexity int     `yaml:"bezier_complexity" json:"bezier_complexity"`
 }
 
 type TimingConfig struct {
-	MinActionDelay    time.Duration `yaml:"min_action_delay" json:"min_action_delay"`
-	MaxActionDelay    time.Duration `yaml:"max_action_delay" json:"max_action_delay"`
-	MinThinkTime      time.Duration `yaml:"min_think_time" json:"min_think_time"`
-	MaxThinkTime      time.Duration `yaml:"max_think_time" json:"max_think_time"`
-	PageLoadWait      time.Duration `yaml:"page_load_wait" json:"page_load_wait"`
-	HumanVariation    float64       `yaml:"human_variation" json:"human_variation"`
+	MinActionDelay time.Duration `yaml:"min_action_delay" json:"min_action_delay"`
+	MaxActionDelay time.Duration `yaml:"max_action_delay" json:"max_action_delay"`
+	MinThinkTime   time.Duration `yaml:"min_think_time" json:"min_think_time"`
+	MaxThinkTime   time.Duration `yaml:"max_think_time" json:"max_think_time"`
+	PageLoadWait   time.Duration `yaml:"page_load_wait" json:"page_load_wait"`
+	HumanVariation float64       `yaml:"human_variation" json:"human_variation"`
 }
 
 type ScrollingConfig struct {
-	Enabled             bool    `yaml:"enabled" json:"enabled"`
-	MinScrollSpeed      int     `yaml:"min_scroll_speed" json:"min_scroll_speed"`
-	MaxScrollSpeed      int     `yaml:"max_scroll_speed" json:"max_scroll_speed"`
-	ScrollBackChance    float64 `yaml:"scroll_back_chance" json:"scroll_back_chance"`
-	PauseChance         float64 `yaml:"pause_chance" json:"pause_chance"`
-	SmoothScrolling     bool    `yaml:"smooth_scrolling" json:"smooth_scrolling"`
+	Enabled          bool    `yaml:"enabled" json:"enabled"`
+	MinScrollSpeed   int     `yaml:"min_scroll_speed" json:"min_scroll_speed"`
+	MaxScrollSpeed   int     `yaml:"max_scroll_speed" json:"max_scroll_speed"`
+	ScrollBackChance float64 `yaml:"scroll_back_chance" json:"scroll_back_chance"`
+	PauseChance      float64 `yaml:"pause_chance" json:"pause_chance"`
+	SmoothScrolling  bool    `yaml:"smooth_scrolling" json:"smooth_scrolling"`
 }
 
 type TypingConfig struct {
-	Enabled           bool          `yaml:"enabled" json:"enabled"`
-	MinKeyDelay       time.Duration `yaml:"min_key_delay" json:"min_key_delay"`
-	MaxKeyDelay       time.Duration `yaml:"max_key_delay" json:"max_key_delay"`
-	TypoChance        float64       `yaml:"typo_chance" json:"typo_chance"`
-	CorrectionDelay   time.Duration `yaml:"correction_delay" json:"correction_delay"`
-	ThinkPauseChance  float64       `yaml:"think_pause_chance" json:"think_pause_chance"`
+	Enabled          bool          `yaml:"enabled" json:"enabled"`
+	MinKeyDelay      time.Duration `yaml:"min_key_delay" json:"min_key_delay"`
+	MaxKeyDelay      time.Duration `yaml:"max_key_delay" json:"max_key_delay"`
+	TypoChance       float64       `yaml:"typo_chance" json:"typo_chance"`
+	CorrectionDelay  time.Duration `yaml:"correction_delay" json:"correction_delay"`
+	ThinkPauseChance float64       `yaml:"think_pause_chance" json:"think_pause_chance"`
 }
 
 type FingerprintConfig struct {
-	RotateUserAgent     bool `yaml:"rotate_user_agent" json:"rotate_user_agent"`
-	RandomizeViewport   bool `yaml:"randomize_viewport" json:"randomize_viewport"`
-	DisableAutomation   bool `yaml:"disable_automation" json:"disable_automation"`
-	SpoofTimezone       bool `yaml:"spoof_timezone" json:"spoof_timezone"`
-	SpoofLanguage       bool `yaml:"spoof_language" json:"spoof_language"`
+	RotateUserAgent   bool `yaml:"rotate_user_agent" json:"rotate_user_agent"`
+	RandomizeViewport bool `yaml:"randomize_viewport" json:"randomize_viewport"`
+	DisableAutomation bool `yaml:"disable_automation" json:"disable_automation"`
+	SpoofTimezone     bool `yaml:"spoof_timezone" json:"spoof_timezone"`
+	SpoofLanguage     bool `yaml:"spoof_language" json:"spoof_language"`
 }
 
 type RateLimitConfig struct {
@@ -101,34 +103,34 @@ type RateLimitConfig struct {
 }
 
 type MessagingConfig struct {
-	Templates         []MessageTemplate `yaml:"templates" json:"templates"`
-	FollowUpDelay     time.Duration     `yaml:"follow_up_delay" json:"follow_up_delay"`
-	MaxMessageLength  int               `yaml:"max_message_length" json:"max_message_length"`
+	Templates        []MessageTemplate `yaml:"templates" json:"templates"`
+	FollowUpDelay    time.Duration     `yaml:"follow_up_delay" json:"follow_up_delay"`
+	MaxMessageLength int               `yaml:"max_message_length" json:"max_message_length"`
 }
 
 type MessageTemplate struct {
-	Name     string `yaml:"name" json:"name"`
-	Subject  string `yaml:"subject" json:"subject"`
-	Body     string `yaml:"body" json:"body"`
-	Type     string `yaml:"type" json:"type"`
+	Name    string `yaml:"name" json:"name"`
+	Subject string `yaml:"subject" json:"subject"`
+	Body    string `yaml:"body" json:"body"`
+	Type    string `yaml:"type" json:"type"`
 }
 
 type SearchConfig struct {
-	Keywords        []string `yaml:"keywords" json:"keywords"`
-	JobTitles       []string `yaml:"job_titles" json:"job_titles"`
-	Companies       []string `yaml:"companies" json:"companies"`
-	Locations       []string `yaml:"locations" json:"locations"`
-	Industries      []string `yaml:"industries" json:"industries"`
-	MaxResults      int      `yaml:"max_results" json:"max_results"`
-	PagesPerSearch  int      `yaml:"pages_per_search" json:"pages_per_search"`
+	Keywords       []string `yaml:"keywords" json:"keywords"`
+	JobTitles      []string `yaml:"job_titles" json:"job_titles"`
+	Companies      []string `yaml:"companies" json:"companies"`
+	Locations      []string `yaml:"locations" json:"locations"`
+	Industries     []string `yaml:"industries" json:"industries"`
+	MaxResults     int      `yaml:"max_results" json:"max_results"`
+	PagesPerSearch int      `yaml:"pages_per_search" json:"pages_per_search"`
 }
 
 type StorageConfig struct {
-	DataDir           string `yaml:"data_dir" json:"data_dir"`
-	ConnectionsFile   string `yaml:"connections_file" json:"connections_file"`
-	MessagesFile      string `yaml:"messages_file" json:"messages_file"`
-	SessionFile       string `yaml:"session_file" json:"session_file"`
-	ProfilesFile      string `yaml:"profiles_file" json:"profiles_file"`
+	DataDir         string `yaml:"data_dir" json:"data_dir"`
+	ConnectionsFile string `yaml:"connections_file" json:"connections_file"`
+	MessagesFile    string `yaml:"messages_file" json:"messages_file"`
+	SessionFile     string `yaml:"session_file" json:"session_file"`
+	ProfilesFile    string `yaml:"profiles_file" json:"profiles_file"`
 }
 
 type LoggingConfig struct {
@@ -140,12 +142,12 @@ type LoggingConfig struct {
 }
 
 type ScheduleConfig struct {
-	Enabled       bool   `yaml:"enabled" json:"enabled"`
-	StartHour     int    `yaml:"start_hour" json:"start_hour"`
-	EndHour       int    `yaml:"end_hour" json:"end_hour"`
-	Timezone      string `yaml:"timezone" json:"timezone"`
-	WorkDays      []int  `yaml:"work_days" json:"work_days"`
-	RandomBreaks  bool   `yaml:"random_breaks" json:"random_breaks"`
+	Enabled      bool   `yaml:"enabled" json:"enabled"`
+	StartHour    int    `yaml:"start_hour" json:"start_hour"`
+	EndHour      int    `yaml:"end_hour" json:"end_hour"`
+	Timezone     string `yaml:"timezone" json:"timezone"`
+	WorkDays     []int  `yaml:"work_days" json:"work_days"`
+	RandomBreaks bool   `yaml:"random_breaks" json:"random_breaks"`
 }
 
 func DefaultConfig() *Config {
@@ -156,6 +158,8 @@ func DefaultConfig() *Config {
 		},
 		Browser: BrowserConfig{
 			Headless:       true,
+			Fullscreen:     true,
+			ZoomLevel:      0.8,
 			UserDataDir:    "./data/browser",
 			ViewportWidth:  1920,
 			ViewportHeight: 1080,
@@ -315,8 +319,12 @@ func (c *Config) applyEnvOverrides() {
 	if password := os.Getenv("LINKEDIN_PASSWORD"); password != "" {
 		c.LinkedIn.Password = password
 	}
-	if headless := os.Getenv("BROWSER_HEADLESS"); headless == "false" {
-		c.Browser.Headless = false
+	if headless := os.Getenv("BROWSER_HEADLESS"); headless != "" {
+		if headless == "true" {
+			c.Browser.Headless = true
+		} else if headless == "false" {
+			c.Browser.Headless = false
+		}
 	}
 	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
 		c.Logging.Level = logLevel

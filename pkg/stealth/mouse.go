@@ -33,7 +33,19 @@ func (m *MouseController) GeneratePath(start, end Point) []Point {
 		return []Point{start, end}
 	}
 
-	path := m.generateBezierPath(start, end)
+	// Calculate distance
+	dist := math.Sqrt(math.Pow(end.X-start.X, 2) + math.Pow(end.Y-start.Y, 2))
+
+	// Balanced density for smoothness without being too slow
+	numSteps := int(dist / 3.0) // Increased divisor for fewer steps = faster
+	if numSteps < 30 {
+		numSteps = 30 // Reduced minimum
+	}
+	if numSteps > 200 {
+		numSteps = 200 // Reduced cap for faster movement
+	}
+
+	path := m.generateBezierPath(start, end, numSteps)
 
 	if m.config.OvershootEnabled && m.rand.Float64() < 0.3 {
 		path = m.addOvershoot(path, end)
@@ -46,9 +58,9 @@ func (m *MouseController) GeneratePath(start, end Point) []Point {
 	return path
 }
 
-func (m *MouseController) generateBezierPath(start, end Point) []Point {
+func (m *MouseController) generateBezierPath(start, end Point, numSteps int) []Point {
 	controlPoints := m.generateControlPoints(start, end)
-	numSteps := m.calculateSteps(start, end)
+	// numSteps is passed in
 	path := make([]Point, 0, numSteps)
 
 	for i := 0; i <= numSteps; i++ {
@@ -75,6 +87,11 @@ func (m *MouseController) generateControlPoints(start, end Point) []Point {
 	dy := end.Y - start.Y
 	distance := math.Sqrt(dx*dx + dy*dy)
 
+	// Guard against zero-distance to avoid division by zero and NaN coordinates
+	if distance == 0 {
+		return []Point{start, end}
+	}
+
 	for i := 1; i < len(points)-1; i++ {
 		progress := float64(i) / float64(len(points)-1)
 
@@ -92,23 +109,8 @@ func (m *MouseController) generateControlPoints(start, end Point) []Point {
 	return points
 }
 
-func (m *MouseController) calculateSteps(start, end Point) int {
-	dx := end.X - start.X
-	dy := end.Y - start.Y
-	distance := math.Sqrt(dx*dx + dy*dy)
-
-	speed := m.config.MinSpeed + m.rand.Float64()*(m.config.MaxSpeed-m.config.MinSpeed)
-	steps := int(distance / (speed * 10))
-
-	if steps < 10 {
-		steps = 10
-	}
-	if steps > 200 {
-		steps = 200
-	}
-
-	return steps
-}
+// REMOVED calculateSteps as it's no longer used by GeneratePath directly
+// reusing logic inside GeneratePath for better control
 
 func (m *MouseController) applyEasing(t float64) float64 {
 	return t * t * (3 - 2*t)
@@ -117,13 +119,11 @@ func (m *MouseController) applyEasing(t float64) float64 {
 func (m *MouseController) bezierPoint(points []Point, t float64) Point {
 	n := len(points) - 1
 	x, y := 0.0, 0.0
-
 	for i, p := range points {
 		b := bernstein(n, i, t)
 		x += p.X * b
 		y += p.Y * b
 	}
-
 	return Point{X: x, Y: y}
 }
 
@@ -160,7 +160,8 @@ func (m *MouseController) addOvershoot(path []Point, target Point) []Point {
 
 	path = append(path, overshoot)
 
-	correctionPath := m.generateBezierPath(overshoot, target)
+	// Generate correction path with fixed steps for smoothness
+	correctionPath := m.generateBezierPath(overshoot, target, 20)
 	path = append(path, correctionPath[1:]...)
 
 	return path

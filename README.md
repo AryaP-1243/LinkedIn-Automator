@@ -10,6 +10,14 @@ A comprehensive Go-based LinkedIn automation tool demonstrating advanced browser
 
 **Do Not Use in Production**: This tool must never be deployed in production environments or used for actual LinkedIn automation. It exists solely to demonstrate technical capabilities and automation engineering skills.
 
+## Demonstration Video
+
+A comprehensive walkthrough video showing the tool setup, configuration, and execution of the automated demo sequence (including the Jensen Huang search) is available at the link below:
+
+**[Watch the Demonstration Video](YOUR_VIDEO_LINK_HERE)**
+
+*(Alternatively, refer to the `walkthrough.md` for highlighted screenshots and execution steps.)*
+
 ## Features
 
 ### Core Functional Requirements
