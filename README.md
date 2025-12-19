@@ -17,12 +17,15 @@ Below are the proof-of-concept recordings demonstrating the bot's advanced human
 ### 1. Stability & Robustness Pass
 Demonstrates absolute error handling, "calm" login typing (100% accuracy), and zero-flicker visible cursor.
 
-https://github.com/AryaP-1243/LinkedIn-Automator/raw/main/docs/assets/demo_v1_stability.mov
+[View Stability Demo Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v1_stability.mov)
 
 ### 2. "Sonic" Speed Optimization
 Demonstrates turbo-charged profile indexing and ultra-fast selection logic (instant transition from search to click).
 
-https://github.com/AryaP-1243/LinkedIn-Automator/raw/main/docs/assets/demo_v2_sonic_speed.mov
+[View Sonic Speed Demo Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v2_sonic_speed.mov)
+
+> [!NOTE]
+> These demo recordings are stored via Git LFS. If they do not play directly in your browser, please use the **Download** button on the pages above to view the high-quality Proof of Work.
 
 *(Alternatively, refer to the `walkthrough.md` for highlighted screenshots and execution steps.)*
 
