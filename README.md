@@ -10,24 +10,21 @@ A comprehensive Go-based LinkedIn automation tool demonstrating advanced browser
 
 **Do Not Use in Production**: This tool must never be deployed in production environments or used for actual LinkedIn automation. It exists solely to demonstrate technical capabilities and automation engineering skills.
 
-## Demonstration Videos
+## Demonstration Proofs (Evidence)
 
-Below are the proof-of-concept recordings demonstrating the bot's advanced human-like interaction and "Sonic" speed optimizations.
+The following recordings demonstrate the bot's advanced human-mimetic interaction and performance. 
 
-### 1. Stability & Robustness Pass
-Demonstrates absolute error handling, "calm" login typing (100% accuracy), and zero-flicker visible cursor.
+> [!IMPORTANT]
+> **GitHub Preview Note**: Because these are high-bitrate `.mov` recordings tracked via Git LFS, GitHub may show a "File too large" or "Sorry, we can't show this" message. 
+> 
+> **To view the proofs**: Click the links below, then use the **"Download"** button on the GitHub file page to watch the recordings in full quality.
 
-[View Stability Demo Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v1_stability.mov)
+| Demonstration | Technical Highlight | Link to Proof |
+| :--- | :--- | :--- |
+| **1. Stability Pass** | 100% accurate login, zero-flicker pointer, safe context handling. | [View Stability Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v1_stability.mov) |
+| **2. Sonic Speed** | Turbo-charged profile indexing and near-instant sub-second clicking. | [View Sonic Speed Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v2_sonic_speed.mov) |
 
-### 2. "Sonic" Speed Optimization
-Demonstrates turbo-charged profile indexing and ultra-fast selection logic (instant transition from search to click).
-
-[View Sonic Speed Demo Recording](https://github.com/AryaP-1243/LinkedIn-Automator/blob/main/docs/assets/demo_v2_sonic_speed.mov)
-
-> [!NOTE]
-> These demo recordings are stored via Git LFS. If they do not play directly in your browser, please use the **Download** button on the pages above to view the high-quality Proof of Work.
-
-*(Alternatively, refer to the `walkthrough.md` for highlighted screenshots and execution steps.)*
+*(Alternatively, refer to the `walkthrough.md` for highlighted screenshots.)*
 
 ## Features
 
