@@ -31,6 +31,10 @@ func main() {
 	timing := stealth.NewTimingController(&cfg.Stealth.Timing)
 	mouse := stealth.NewMouseController(&cfg.Stealth.MouseMovement)
 	scroll := stealth.NewScrollController(&cfg.Stealth.Scrolling, timing)
+	// Slower, more reliable typing for demo search box
+	cfg.Stealth.Typing.MinKeyDelay = 100 * time.Millisecond
+	cfg.Stealth.Typing.MaxKeyDelay = 250 * time.Millisecond
+	cfg.Stealth.Typing.ThinkPauseChance = 0.02
 	typing := stealth.NewTypingController(&cfg.Stealth.Typing)
 	fingerprint := stealth.NewFingerprintManager(&cfg.Stealth.Fingerprinting, &cfg.Browser)
 
@@ -99,19 +103,41 @@ func main() {
 
 		if selector != "" {
 			log.Info("Found login field: %s", selector)
-			_ = br.Type(ctx, selector, cfg.LinkedIn.Email)
-			time.Sleep(1 * time.Second)
+
+			// CALM LOGIN: Slow down typing and disable typos JUST for login
+			cfg.Stealth.Typing.MinKeyDelay = 200 * time.Millisecond
+			cfg.Stealth.Typing.MaxKeyDelay = 400 * time.Millisecond
+			cfg.Stealth.Typing.TypoChance = 0
+			cfg.Stealth.Typing.ThinkPauseChance = 0
+			br.SetTypingController(stealth.NewTypingController(&cfg.Stealth.Typing))
+
+			log.Info("Typing username...")
+			if err := br.Type(ctx, selector, cfg.LinkedIn.Email); err != nil {
+				log.Fatal("Failed to type username: %v", err)
+			}
+			time.Sleep(2 * time.Second)
 
 			passSelector := "#password"
 			if !br.Exists(passSelector) && br.Exists("#session_password") {
 				passSelector = "#session_password"
 			}
 
-			_ = br.Type(ctx, passSelector, cfg.LinkedIn.Password)
-			time.Sleep(1 * time.Second)
+			log.Info("Typing password...")
+			if err := br.Type(ctx, passSelector, cfg.LinkedIn.Password); err != nil {
+				log.Fatal("Failed to type password: %v", err)
+			}
+			time.Sleep(2 * time.Second)
 
 			submitSelector := "button[type='submit']"
-			_ = br.Click(ctx, submitSelector)
+			if err := br.Click(ctx, submitSelector); err != nil {
+				log.Fatal("Failed to click sign-in button: %v", err)
+			}
+
+			// Restore demo-tuned typing for the search phase
+			cfg.Stealth.Typing.MinKeyDelay = 100 * time.Millisecond
+			cfg.Stealth.Typing.MaxKeyDelay = 250 * time.Millisecond
+			cfg.Stealth.Typing.ThinkPauseChance = 0.02
+			br.SetTypingController(stealth.NewTypingController(&cfg.Stealth.Typing))
 
 			log.Info("Waiting for login to complete and feed to load...")
 			time.Sleep(10 * time.Second)
@@ -137,16 +163,16 @@ func main() {
 			Keywords: []string{"Amarnath", "PES", "Apple", "India"},
 		},
 		{
-			Search:   "Santhosh Mokashi PES",
-			Keywords: []string{"Santhosh", "Mokashi", "PES", "Karnataka", "India"},
+			Search:   "Santosh Mokashi PES",
+			Keywords: []string{"Santhosh", "Santosh", "Mokashi", "PES", "University"},
 		},
 		{
-			Search:   "Mahesh Awati PES University",
-			Keywords: []string{"Mahesh", "Awati", "PES", "University", "India", "Karnataka"},
+			Search:   "Mahesh Awati PES",
+			Keywords: []string{"Mahesh", "Awati", "PES", "University"},
 		},
 		{
-			Search:   "Shreya Lingamallu PES University",
-			Keywords: []string{"Shreya", "Lingamallu", "PES", "University", "India"},
+			Search:   "Shreya Lingamallu PES",
+			Keywords: []string{"Shreya", "Lingamallu", "PES", "University"},
 		},
 	}
 
@@ -166,14 +192,14 @@ func main() {
 			log.Error("Failed to click profile for %s: %v", t.Search, err)
 		}
 
-		time.Sleep(8 * time.Second)
+		time.Sleep(3 * time.Second)
 		log.Info("Target search %d/5 complete.", i+1)
 
 		// Navigate back home for next iteration
 		if i < len(targets)-1 {
 			log.Info("Preparing for next target...")
 			_ = br.Navigate(ctx, "https://www.linkedin.com/feed/")
-			time.Sleep(4 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}
 

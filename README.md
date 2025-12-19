@@ -10,11 +10,17 @@ A comprehensive Go-based LinkedIn automation tool demonstrating advanced browser
 
 **Do Not Use in Production**: This tool must never be deployed in production environments or used for actual LinkedIn automation. It exists solely to demonstrate technical capabilities and automation engineering skills.
 
-## Demonstration Video
+## Demonstration Videos
 
-A comprehensive walkthrough video showing the tool setup, configuration, and execution of the automated demo sequence (including the Jensen Huang search) is available at the link below:
+Below are the proof-of-concept recordings demonstrating the bot's advanced human-like interaction and "Sonic" speed optimizations.
 
-**[Watch the Demonstration Video](YOUR_VIDEO_LINK_HERE)**
+### 1. Stability & Robustness Pass
+Demonstrates absolute error handling, "calm" login typing (100% accuracy), and zero-flicker visible cursor.
+[Watch Stability Demo](docs/assets/demo_v1_stability.mov)
+
+### 2. "Sonic" Speed Optimization
+Demonstrates turbo-charged profile indexing and ultra-fast selection logic (instant transition from search to click).
+[Watch Speed Demo](docs/assets/demo_v2_sonic_speed.mov)
 
 *(Alternatively, refer to the `walkthrough.md` for highlighted screenshots and execution steps.)*
 

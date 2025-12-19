@@ -41,7 +41,7 @@ func (v *VisualSearcher) CaptureScreenshot(name string) {
 	filename := fmt.Sprintf("step_%d_%s.png", time.Now().Unix(), name)
 	v.log.Info("📸 VISUAL VERIFICATION: Capturing screenshot: %s", filename)
 
-	_ = page.MustWaitLoad()
+	_ = page.WaitLoad()
 	data, err := page.Screenshot(true, nil)
 	if err != nil {
 		v.log.Warn("Failed to take screenshot: %v", err)
@@ -55,7 +55,42 @@ func (v *VisualSearcher) CaptureScreenshot(name string) {
 
 // ensureCursor makes the cursor IMPOSSIBLE to miss
 func (v *VisualSearcher) ensureCursor(page *rod.Page) {
-	_, _ = page.Evaluate(rod.Eval(`() => { var old=document.getElementById('visible-cursor'); if(old) old.remove(); if(!document.getElementById('cursor-style')){ var s=document.createElement('style'); s.id='cursor-style'; s.innerHTML='@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 20px red}50%{transform:translate(-50%,-50%) scale(1.3);box-shadow:0 0 40px red}}'; document.head.appendChild(s); } var c=document.createElement('div'); c.id='visible-cursor'; c.style.cssText='position:fixed!important;width:30px!important;height:30px!important;background:red!important;border-radius:50%!important;pointer-events:none!important;z-index:2147483647!important;border:3px solid white!important;display:block!important;visibility:visible!important;opacity:1!important;animation:pulse 1s ease-in-out infinite!important'; c.style.left=(window.innerWidth/2)+'px'; c.style.top=(window.innerHeight/2)+'px'; document.body.appendChild(c); if(window.cursorKeeper) clearInterval(window.cursorKeeper); window.cursorKeeper=setInterval(function(){ var x=document.getElementById('visible-cursor'); if(!x){ x=c.cloneNode(true); x.id='visible-cursor'; document.body.appendChild(x); } x.style.display='block'; x.style.visibility='visible'; x.style.opacity='1';  },50); window.moveCursor=function(x,y){ var d=document.getElementById('visible-cursor'); if(d){ d.style.left=x+'px'; d.style.top=y+'px';  }}; window.flashCursor=function(){ var d=document.getElementById('visible-cursor'); if(d){ d.style.background='yellow'; d.style.transform='translate(-50%,-50%) scale(2)'; setTimeout(function(){ d.style.background='red'; d.style.transform='translate(-50%,-50()) scale(1)'; },300);  }}; }`).ByUser())
+	_, _ = page.Evaluate(rod.Eval(`() => { 
+		var old = document.getElementById('visible-cursor'); 
+		if (old) return; // ALREADY EXISTS, DO NOT TICKLE THE DOM
+		
+		if (!document.getElementById('cursor-style')) { 
+			var s = document.createElement('style'); 
+			s.id = 'cursor-style'; 
+			s.innerHTML = '@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 20px red}50%{transform:translate(-50%,-50%) scale(1.3);box-shadow:0 0 40px red}}'; 
+			document.head.appendChild(s); 
+		} 
+		
+		var c = document.createElement('div'); 
+		c.id = 'visible-cursor'; 
+		c.style.cssText = 'position:fixed!important;width:30px!important;height:30px!important;background:red!important;border-radius:50%!important;pointer-events:none!important;z-index:2147483647!important;border:3px solid white!important;display:block!important;visibility:visible!important;opacity:1!important;animation:pulse 1s ease-in-out infinite!important'; 
+		c.style.left = (window.innerWidth/2) + 'px'; 
+		c.style.top = (window.innerHeight/2) + 'px'; 
+		document.body.appendChild(c); 
+		
+		if (window.cursorKeeper) clearInterval(window.cursorKeeper); 
+		window.cursorKeeper = setInterval(function() { 
+			var x = document.getElementById('visible-cursor'); 
+			if (!x) { 
+				x = c.cloneNode(true); 
+				x.id = 'visible-cursor'; 
+				document.body.appendChild(x); 
+			} 
+			x.style.display = 'block'; 
+			x.style.visibility = 'visible'; 
+			x.style.opacity = '1';  
+		}, 200); 
+		
+		window.moveCursor = function(x, y) { 
+			var d = document.getElementById('visible-cursor'); 
+			if (d) { d.style.left = x + 'px'; d.style.top = y + 'px'; }
+		}; 
+	}`).ByUser())
 }
 
 // getCursorPos retrieves cursor position
@@ -97,7 +132,10 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 		v.ensureCursor(page)
 		if v.browser.Exists(selector) {
 			v.log.Info("Found search box: %s", selector)
-			v.browser.Click(ctx, selector)
+			if err := v.browser.Click(ctx, selector); err != nil {
+				v.log.Warn("Failed to click search box: %v", err)
+				continue
+			}
 			searchBoxClicked = true
 			break
 		}
@@ -113,17 +151,12 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 	v.log.Info("Typing search term...")
 	for _, selector := range searchBoxSelectors {
 		if v.browser.Exists(selector) {
-			el := page.MustElement(selector)
-			el.Click(proto.InputMouseButtonLeft, 1)
-			time.Sleep(200 * time.Millisecond)
+			// Clear existing text safely
+			_, _ = page.Eval(`(sel) => { var el = document.querySelector(sel); if (el) { el.value = ""; el.dispatchEvent(new Event('input', { bubbles: true })); } }`, selector)
 
-			page.MustEval(`(sel) => { var el = document.querySelector(sel); if (el) { el.value = ""; el.dispatchEvent(new Event('input', { bubbles: true })); } }`, selector)
-
-			for i := 0; i < 5; i++ {
-				page.Keyboard.Type(input.Backspace)
+			if err := v.browser.Type(ctx, selector, searchTerm); err != nil {
+				return fmt.Errorf("failed to type search term: %w", err)
 			}
-
-			v.browser.Type(ctx, selector, searchTerm)
 			break
 		}
 	}
@@ -134,19 +167,23 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 
 	for _, selector := range searchBoxSelectors {
 		if v.browser.Exists(selector) {
-			page.MustElement(selector).MustClick()
-			page.MustElement(selector).MustType(input.Enter)
+			if err := v.browser.Click(ctx, selector); err != nil {
+				v.log.Warn("Failed to click search box for submission: %v", err)
+			}
+			if err := page.Keyboard.Press(input.Enter); err != nil {
+				return fmt.Errorf("failed to press Enter: %w", err)
+			}
 			break
 		}
 	}
 
-	time.Sleep(4 * time.Second)
+	time.Sleep(1 * time.Second)
 	v.ensureCursor(page)
 
 	v.log.Info("Looking for People tab...")
 	page = v.browser.Page()
 	v.ensureCursor(page)
-	time.Sleep(2 * time.Second)
+	time.Sleep(500 * time.Millisecond)
 
 	peopleSelectors := []string{
 		"button[aria-label='People']",
@@ -172,7 +209,7 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 	}
 
 	if peopleBtn != nil {
-		peopleBtn.MustScrollIntoView()
+		_ = peopleBtn.ScrollIntoView()
 		time.Sleep(500 * time.Millisecond)
 		v.ensureCursor(page)
 
@@ -181,24 +218,23 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 		centerX := box.X + box.Width/2
 		centerY := box.Y + box.Height/2
 
-		// Move cursor visibly to People button
-		path := v.mouse.GeneratePath(stealth.Point{X: 100, Y: 100}, stealth.Point{X: centerX, Y: centerY})
-		for _, point := range path {
-			page.Mouse.MustMoveTo(point.X, point.Y)
-			page.MustEval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, point.X, point.Y)
-			time.Sleep(8 * time.Millisecond)
+		// Move cursor visibly to People button (DIRECT)
+		if err := page.Mouse.MoveTo(proto.Point{X: centerX, Y: centerY}); err != nil {
+			v.log.Warn("Mouse move to people failed: %v", err)
 		}
+		_, _ = page.Eval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, centerX, centerY)
 
-		time.Sleep(300 * time.Millisecond)
-		page.MustEval(`() => { if(window.flashCursor) window.flashCursor(); }`)
-		page.Mouse.MustClick(proto.InputMouseButtonLeft)
+		time.Sleep(100 * time.Millisecond)
+		if err := page.Mouse.Click(proto.InputMouseButtonLeft, 1); err != nil {
+			v.log.Warn("People click failed: %v", err)
+		}
 
 		v.log.Info("✓ People clicked! Keeping pointer visible...")
 
 		// CRITICAL: Keep cursor visible during reload (snappier transition)
 		for i := 0; i < 5; i++ {
 			v.ensureCursor(page)
-			time.Sleep(200 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 
@@ -207,14 +243,14 @@ func (v *VisualSearcher) SearchWithUI(ctx context.Context, searchTerm string) er
 	for i := 0; i < 4; i++ {
 		v.ensureCursor(page)
 		v.browser.Scroll(ctx, 800)
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	v.log.Info("Scrolling back...")
 	for i := 0; i < 3; i++ {
 		v.ensureCursor(page)
 		v.browser.Scroll(ctx, -700)
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 	}
 
 	v.ensureCursor(page)
@@ -282,7 +318,10 @@ func (v *VisualSearcher) ClickProfile(ctx context.Context, profileKeywords []str
 
 		fullText := textLower + " " + contextText
 		if strings.Contains(fullText, "united states") || strings.Contains(fullText, "usa") {
-			score -= 600
+			// Only penalize USA if we don't already have a strong name match (e.g., Jensen Huang)
+			if score < 50 {
+				score -= 600
+			}
 		} else if strings.Contains(fullText, "india") || strings.Contains(fullText, "bangalore") {
 			score += 250
 		}
@@ -343,8 +382,8 @@ func (v *VisualSearcher) ClickProfile(ctx context.Context, profileKeywords []str
 	v.log.Info("✓ Selected: %s (Score: %d)", best.Name, best.Score)
 
 	v.ensureCursor(page)
-	best.Element.MustScrollIntoView()
-	time.Sleep(200 * time.Millisecond)
+	_ = best.Element.ScrollIntoView()
+	time.Sleep(50 * time.Millisecond)
 
 	shape, _ := best.Element.Shape()
 	box := shape.Box()
@@ -354,18 +393,19 @@ func (v *VisualSearcher) ClickProfile(ctx context.Context, profileKeywords []str
 	v.log.Info("Moving cursor to profile...")
 	path := v.mouse.GeneratePath(stealth.Point{X: 50, Y: 50}, stealth.Point{X: targetX, Y: targetY})
 	for _, point := range path {
-		page.Mouse.MustMoveTo(point.X, point.Y)
-		page.MustEval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, point.X, point.Y)
-		time.Sleep(5 * time.Millisecond)
+		if err := page.Mouse.MoveTo(proto.Point{X: point.X, Y: point.Y}); err != nil {
+			v.log.Warn("Mouse move to profile failed: %v", err)
+		}
+		_, _ = page.Eval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, point.X, point.Y)
+		time.Sleep(1 * time.Millisecond)
 	}
 
 	time.Sleep(50 * time.Millisecond)
-	page.MustEval(`() => { if(window.flashCursor) window.flashCursor(); }`)
-	time.Sleep(100 * time.Millisecond)
-	page.Mouse.MustClick(proto.InputMouseButtonLeft)
+	if err := page.Mouse.Click(proto.InputMouseButtonLeft, 1); err != nil {
+		v.log.Warn("Profile click failed: %v", err)
+	}
 
 	v.log.Info("✓ Profile clicked!")
-	time.Sleep(6 * time.Second)
 	v.CaptureScreenshot("profile_opened")
 	v.ensureCursor(page)
 	return nil
@@ -388,10 +428,18 @@ func (v *VisualSearcher) ApplyFilters(ctx context.Context, filterType, filterVal
 
 func (v *VisualSearcher) ExecuteTyping(ctx context.Context, selector, text string) error {
 	v.ensureCursor(v.browser.Page())
-	el := v.browser.Page().MustElement(selector)
-	el.MustClick()
+	el, err := v.browser.Page().Element(selector)
+	if err != nil {
+		return err
+	}
+	_ = el.Click(proto.InputMouseButtonLeft, 1)
 	for _, char := range text {
-		el.MustInput(string(char))
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+		_ = el.Input(string(char))
 		time.Sleep(50 * time.Millisecond)
 	}
 	return nil

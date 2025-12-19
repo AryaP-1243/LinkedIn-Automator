@@ -50,6 +50,10 @@ func New(opts Options) *Browser {
 	}
 }
 
+func (b *Browser) SetTypingController(tc *stealth.TypingController) {
+	b.typing = tc
+}
+
 func (b *Browser) Launch(ctx context.Context) error {
 	b.log.Info("Launching browser...")
 
@@ -222,10 +226,11 @@ func (b *Browser) WaitForElement(ctx context.Context, selector string, timeout t
 }
 
 func (b *Browser) Click(ctx context.Context, selector string) error {
-	element, err := b.WaitForElement(ctx, selector, 10*time.Second)
+	element, err := b.WaitForElement(ctx, selector, 30*time.Second)
 	if err != nil {
 		return err
 	}
+	element = element.Context(ctx)
 
 	box, err := element.Shape()
 	if err != nil {
@@ -249,9 +254,11 @@ func (b *Browser) Click(ctx context.Context, selector string) error {
 
 	// Move both DevTools mouse AND visible cursor along the path
 	for _, point := range path {
-		b.page.Mouse.MustMoveTo(point.X, point.Y)
+		if err := b.page.Mouse.MoveTo(proto.Point{X: point.X, Y: point.Y}); err != nil {
+			return fmt.Errorf("mouse move failed: %w", err)
+		}
 		// Move the visible cursor overlay
-		b.page.MustEval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, point.X, point.Y)
+		_, _ = b.page.Eval(`(x, y) => { if(window.moveCursor) window.moveCursor(x, y); }`, point.X, point.Y)
 
 		// Faster but still smooth movement
 		time.Sleep(5 * time.Millisecond)
@@ -265,7 +272,7 @@ func (b *Browser) Click(ctx context.Context, selector string) error {
 	}
 
 	// Show click effect on visible cursor
-	b.page.MustEval(`() => { if(window.clickEffect) window.clickEffect(); }`)
+	_, _ = b.page.Eval(`() => { if(window.clickEffect) window.clickEffect(); }`)
 
 	if err := b.page.Mouse.Click(proto.InputMouseButtonLeft, 1); err != nil {
 		return fmt.Errorf("click failed: %w", err)
@@ -276,10 +283,11 @@ func (b *Browser) Click(ctx context.Context, selector string) error {
 }
 
 func (b *Browser) Type(ctx context.Context, selector, text string) error {
-	element, err := b.WaitForElement(ctx, selector, 10*time.Second)
+	element, err := b.WaitForElement(ctx, selector, 30*time.Second)
 	if err != nil {
 		return err
 	}
+	element = element.Context(ctx)
 
 	if err := b.Click(ctx, selector); err != nil {
 		return err
@@ -308,9 +316,11 @@ func (b *Browser) Scroll(ctx context.Context, deltaY int) error {
 	actions := b.scroll.GenerateScrollSequence(deltaY)
 
 	// Move mouse to center of page to ensure we're over scrollable content
-	b.page.MustEval(`() => { }`) // Ensure page is ready
+	_, _ = b.page.Eval(`() => { }`) // Ensure page is ready
 	// Use slightly offset center to avoid some center-of-screen popups
-	b.page.Mouse.MustMoveTo(700, 450)
+	if err := b.page.Mouse.MoveTo(proto.Point{X: 700, Y: 450}); err != nil {
+		return fmt.Errorf("mouse move for scroll failed: %w", err)
+	}
 
 	// Wrapped scroll function to also move visible cursor
 	wrappedScrollFn := func(delta int) error {
@@ -364,7 +374,7 @@ func (b *Browser) Scroll(ctx context.Context, deltaY int) error {
 }
 
 func (b *Browser) GetText(ctx context.Context, selector string) (string, error) {
-	element, err := b.WaitForElement(ctx, selector, 10*time.Second)
+	element, err := b.WaitForElement(ctx, selector, 30*time.Second)
 	if err != nil {
 		return "", err
 	}
@@ -378,7 +388,7 @@ func (b *Browser) GetText(ctx context.Context, selector string) (string, error) 
 }
 
 func (b *Browser) GetAttribute(ctx context.Context, selector, attr string) (string, error) {
-	element, err := b.WaitForElement(ctx, selector, 10*time.Second)
+	element, err := b.WaitForElement(ctx, selector, 30*time.Second)
 	if err != nil {
 		return "", err
 	}
